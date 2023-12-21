@@ -1,15 +1,21 @@
 import React, { useState } from "react";
 import { Resizable } from "react-resizable";
-import { Col, Input, Button, Modal, Slider } from "antd";
+import { Input, Button, Modal, Slider } from "antd";
 
-const ResizableItem = ({ item, onEdit }) => {
+// ... (import statements)
+
+const ResizableItem = ({ item }) => {
   const [width, setWidth] = useState(Number(item.width));
   const [height, setHeight] = useState(Number(item.height));
+  const [left, setLeft] = useState(item.left);
+  const [top, setTop] = useState(item.top);
   const [isEditing, setIsEditing] = useState(false);
 
   const onResize = (event, { size }) => {
     setWidth(size.width);
     setHeight(size.height);
+    setLeft(size.left);
+    setTop(size.top);
   };
 
   const handleClick = () => {
@@ -19,22 +25,29 @@ const ResizableItem = ({ item, onEdit }) => {
   const handleSliderChange = (flag, value) => {
     if (flag === "width") {
       setWidth(value);
-    } else {
+    } else if (flag === "height") {
       setHeight(value);
+    } else if (flag === "top") {
+      setTop(value);
+    } else {
+      setLeft(value);
     }
   };
 
   const handleOk = () => {
     setIsEditing(false);
-    onEdit(item, width, height);
   };
 
   const handleCancel = () => {
     setIsEditing(false);
+    setWidth(Number(item.width));
+    setHeight(Number(item.height));
+    setLeft(Number(item.left));
+    setTop(Number(item.top));
   };
 
   return (
-    <Col span={5} style={{ cursor: "pointer", margin: "8px" }}>
+    <div style={{ cursor: "pointer", margin: "8px" }}>
       <Resizable width={width} height={height} onResize={onResize}>
         <div
           style={{
@@ -71,7 +84,7 @@ const ResizableItem = ({ item, onEdit }) => {
       </Resizable>
       <Modal
         title="Resize"
-        open={isEditing}
+        visible={isEditing}
         onOk={handleOk}
         onCancel={handleCancel}
         style={{ marginTop: 50 }}
@@ -90,9 +103,22 @@ const ResizableItem = ({ item, onEdit }) => {
           onChange={(value) => handleSliderChange("height", value)}
           style={{ marginBottom: 16 }}
         />
-
+        <Slider
+          min={20}
+          max={850}
+          value={top}
+          onChange={(value) => handleSliderChange("top", value)}
+          style={{ marginBottom: 16 }}
+        />
+        <Slider
+          min={20}
+          max={850}
+          value={left}
+          onChange={(value) => handleSliderChange("left", value)}
+          style={{ marginBottom: 16 }}
+        />
       </Modal>
-    </Col>
+    </div>
   );
 };
 

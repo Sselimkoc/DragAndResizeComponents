@@ -1,59 +1,59 @@
-import React, { useState } from "react";
+// DroppableForm.js
+import React, { useState, useRef } from "react";
 import { useDrop } from "react-dnd";
-import { Row, Col, Input, Button, Slider } from "antd";
 import ResizableItem from "./ResizableItem";
 
 const DroppableForm = ({ onDrop, items }) => {
   const [droppedItems, setDroppedItems] = useState(items || []);
+  const dropRef = useRef(null);
 
   const [, drop] = useDrop({
     accept: ["input", "button"],
-    drop: (item) => {
-      setDroppedItems((prevItems) => [...prevItems, item]);
-      onDrop(item);
+    drop: (item, monitor) => {
+      if (!dropRef.current) {
+        return;
+      }
+
+      const offset = monitor.getSourceClientOffset();
+      const left = offset.x - dropRef.current.getBoundingClientRect().left;
+      const top = offset.y - dropRef.current.getBoundingClientRect().top;
+
+      const newItem = { ...item, left, top };
+      setDroppedItems((prevItems) => [...prevItems, newItem]);
+      onDrop(newItem);
     },
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
     }),
   });
 
-  const onEdit = (editedItem, newWidth) => {
-    // Update the dimensions of the edited item
-    console.log(
-      "first",
-
-      editedItem.width,
-      newWidth
-    );
-    setDroppedItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === editedItem.id ? { ...item, width: newWidth } : item
-      )
-    );
-  };
-
   return (
-    <>
-      <div
-        ref={drop}
-        style={{
-          backgroundColor: "lightblue",
-          padding: "16px",
-        }}
-      >
-        <Row gutter={[16, 16]}>
-          {droppedItems.map((item) => (
-            <ResizableItem
-              key={item.id}
-              item={item}
-              onEdit={(newWidth) => onEdit(item, newWidth)}
-              style={({ width: item.width }, { height: item.height })}
-            />
-          ))}
-        </Row>
-      </div>
-      <div style={{ width: "200px", marginTop: "16px" }}></div>
-    </>
+    <div
+      ref={(node) => {
+        dropRef.current = node;
+        drop(node);
+      }}
+      style={{
+        backgroundColor: "lightblue",
+        padding: "16px",
+        position: "relative",
+        height: 500,
+        width: 500,
+      }}
+    >
+      {droppedItems.map((item) => (
+        <div
+          key={item.id}
+          style={{
+            position: "absolute",
+            left: item.left,
+            top: item.top,
+          }}
+        >
+          <ResizableItem item={item} />
+        </div>
+      ))}
+    </div>
   );
 };
 

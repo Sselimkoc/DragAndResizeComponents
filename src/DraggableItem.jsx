@@ -12,20 +12,20 @@ const DraggableItem = ({ item }) => {
   });
 
   return (
-    <Col
+    <div
       ref={drag}
-      span={8}
-      style={{ cursor: "pointer", opacity: isDragging ? 0.5 : 1 }}
+      style={{
+        cursor: "pointer",
+        opacity: isDragging ? 0.5 : 1,
+        margin: "8px",
+      }}
     >
       {item.type === "input" ? (
-        <Input
-          placeholder={item.type}
-          style={{ width: 100, height: item.height }}
-        />
+        <Input placeholder="text" style={{ width: 100, height: item.height }} />
       ) : (
         <Button style={{ width: 100, height: item.height }}>{item.type}</Button>
       )}
-    </Col>
+    </div>
   );
 };
 
